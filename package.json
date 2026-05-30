@@ -1,0 +1,33 @@
+{
+  "name": "qtmx-",
+  "version": "17.0.0",
+  "description": "QTMX- Pure - Reactive Infrastructure Language",
+  "main": "qtmx-compiler-enhanced.js",
+  "bin": {
+    "qtmx": "./bin/qtmx.js"
+  },
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [
+    "qtmx",
+    "reactive",
+    "infrastructure",
+    "language",
+    "compiler"
+  ],
+  "author": "lutium <lutiumm@gmail.com>",
+  "license": "QTMX License Family v1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lutium/qtmx-lang.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lutium/qtmx-lang/issues"
+  },
+  "homepage": "https://github.com/lutium/qtmx-lang#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "preferGlobal": true
+}
