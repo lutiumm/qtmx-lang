@@ -1,0 +1,77 @@
+{
+  "name": "QTMX-",
+  "scopeName": "source.qtmx",
+  "fileTypes": ["qtmx-", "qtmx+", "qtmx#"],
+  "patterns": [
+    {
+      "name": "comment.line.qtmx",
+      "match": "//.*$"
+    },
+    {
+      "name": "string.quoted.double.qtmx",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.qtmx",
+          "match": "\\\\."
+        }
+      ]
+    },
+    {
+      "name": "string.quoted.single.qtmx",
+      "begin": "'",
+      "end": "'",
+      "patterns": [
+        {
+          "name": "constant.character.escape.qtmx",
+          "match": "\\\\."
+        }
+      ]
+    },
+    {
+      "name": "keyword.control.beq.qtmx",
+      "match": "\\b(beQ|beQ-)\\b"
+    },
+    {
+      "name": "keyword.control.qq.qtmx",
+      "match": "\\b(qq|qq-|qq\\+|qq#)\\b"
+    },
+    {
+      "name": "keyword.control.block.qtmx",
+      "match": "\\b(bbq|aaq)\\b"
+    },
+    {
+      "name": "keyword.control.io.qtmx",
+      "match": "\\b(ingo|outgo)\\b"
+    },
+    {
+      "name": "keyword.control.checkpoint.qtmx",
+      "match": "\\b(tcq|check)\\b"
+    },
+    {
+      "name": "keyword.control.conditional.qtmx",
+      "match": "\\b(F|f|El|el)\\b"
+    },
+    {
+      "name": "keyword.declaration.qtmx",
+      "match": "\\b(module|license|endpoint|events|var|query|sync|emit|on-fail)\\b"
+    },
+    {
+      "name": "storage.type.qtmx",
+      "match": "\\b(string|int|float|bool|array|object)\\b"
+    },
+    {
+      "name": "storage.modifier.license.qtmx",
+      "match": "\\b(MTK|GAF|UFG)\\b"
+    },
+    {
+      "name": "constant.numeric.qtmx",
+      "match": "\\b[0-9]+\\b"
+    },
+    {
+      "name": "variable.other.qtmx",
+      "match": "[a-zA-Z_][a-zA-Z0-9_-]*"
+    }
+  ]
+}

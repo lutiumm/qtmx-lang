@@ -1,0 +1,34 @@
+{
+  "comments": {
+    "lineComment": "//"
+  },
+  "brackets": [
+    ["(", ")"],
+    ["[", "]"],
+    ["{", "}"]
+  ],
+  "autoClosingPairs": [
+    ["(", ")"],
+    ["[", "]"],
+    ["{", "}"],
+    ["\"", "\""],
+    ["'", "'"]
+  ],
+  "surrounding": [
+    ["(", ")"],
+    ["[", "]"],
+    ["{", "}"],
+    ["\"", "\""],
+    ["'", "'"]
+  ],
+  "indentationRules": {
+    "increaseIndentPattern": "(beQ|beQ-|bbq|aaq|tcq|\\{)\\s*$",
+    "decreaseIndentPattern": "^\\s*(qq|qq-|qq\\+|qq#|\\}|check)"
+  },
+  "folding": {
+    "markers": {
+      "start": "beQ",
+      "end": "qq"
+    }
+  }
+}
