@@ -1,0 +1,16 @@
+{
+  "comments": {
+    "lineComment": "//"
+  },
+  "brackets": [["(", ")"], ["[", "]"], ["{", "}"]],
+  "autoClosingPairs": [
+    ["(", ")"],
+    ["[", "]"],
+    ["{", "}"],
+    ["\"", "\""]
+  ],
+  "indentationRules": {
+    "increaseIndentPattern": "(beQ|bbq|aaq|tcq|\\{)\\s*$",
+    "decreaseIndentPattern": "^\\s*(qq|qq-|qq\\+|qq#|\\})"
+  }
+}

@@ -1,0 +1,12 @@
+beQ-
+  module hello-world
+  license: MTK
+  endpoint: "https://example.com"
+  
+  aaq
+    logic-block
+      query greeting.create()
+      sync output.display()
+  aaq
+  
+qq-
