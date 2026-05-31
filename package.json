@@ -1,7 +1,7 @@
 {
-  "name": "qtmx-",
+  "name": "qtmx-pure",
   "version": "17.0.2",
-  "description": "QTMX- Pure - Reactive Infrastructure Language. Standalone executable language.",
+  "description": "QTMX Pure - Standalone Reactive Infrastructure Language. Executable language for indie developers.",
   "main": "bin/qtmx.js",
   "bin": {
     "qtmx": "./bin/qtmx.js"
@@ -13,13 +13,15 @@
   "keywords": [
     "qtmx",
     "qtmx-",
+    "qtmx-pure",
     "reactive",
     "infrastructure",
     "language",
     "compiler",
     "pure",
     "dsl",
-    "indie-dev"
+    "indie-dev",
+    "programming-language"
   ],
   "author": "lutium <lutiumm@gmail.com>",
   "license": "QTMX License Family v1.0",
@@ -38,6 +40,8 @@
   "files": [
     "bin/",
     "README.md",
-    "LICENSE"
-  ]
+    "LICENSE",
+    "package.json"
+  ],
+  "type": "commonjs"
 }
