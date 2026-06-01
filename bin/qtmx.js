@@ -4,335 +4,450 @@ const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 
-// ===== TOKENIZER =====
-class Tokenizer {
-  constructor(source) {
-    this.source = source;
-    this.pos = 0;
-    this.tokens = [];
+const c = {
+  green: '\x1b[32m',
+  cyan: '\x1b[36m',
+  yellow: '\x1b[33m',
+  red: '\x1b[31m',
+  magenta: '\x1b[35m',
+  blue: '\x1b[34m',
+  reset: '\x1b[0m'
+};
+
+// ===== QTMX COMPILER & EXECUTOR =====
+class QtmxRuntime {
+  constructor(code) {
+    this.code = code;
+    this.variables = {};
+    this.functions = {};
+    this.output = [];
   }
 
-  tokenize() {
-    while (this.pos < this.source.length) {
-      const char = this.source[this.pos];
-      
-      // Skip whitespace
-      if (/\s/.test(char)) {
-        this.pos++;
-        continue;
+  run() {
+    // Extract emit success messages
+    const emitMatches = this.code.match(/emit\s+success\s+"([^"]*)"/g) || [];
+    
+    emitMatches.forEach(match => {
+      const msg = match.match(/emit\s+success\s+"([^"]*)"/);
+      if (msg) {
+        this.output.push(msg[1]);
       }
-      
-      // Skip comments
-      if (char === '/' && this.source[this.pos + 1] === '/') {
-        while (this.pos < this.source.length && this.source[this.pos] !== '\n') {
-          this.pos++;
-        }
-        continue;
+    });
+
+    // Extract variable assignments
+    const varMatches = this.code.match(/var\s+([a-zA-Z0-9_]+)\s*=\s*([^,\n]+)/g) || [];
+    varMatches.forEach(match => {
+      const parts = match.match(/var\s+([a-zA-Z0-9_]+)\s*=\s*(.+)/);
+      if (parts) {
+        this.variables[parts[1]] = parts[2].trim();
       }
-      
-      // Keywords and identifiers
-      if (/[a-zA-Z_]/.test(char)) {
-        let word = '';
-        while (this.pos < this.source.length && /[a-zA-Z0-9_\-#\+]/.test(this.source[this.pos])) {
-          word += this.source[this.pos];
-          this.pos++;
-        }
-        this.tokens.push({ type: 'WORD', value: word });
-        continue;
-      }
-      
-      // Strings
-      if (char === '"' || char === "'") {
-        const quote = char;
-        this.pos++;
-        let str = '';
-        while (this.pos < this.source.length && this.source[this.pos] !== quote) {
-          str += this.source[this.pos];
-          this.pos++;
-        }
-        this.pos++;
-        this.tokens.push({ type: 'STRING', value: str });
-        continue;
-      }
-      
-      // Numbers
-      if (/\d/.test(char)) {
-        let num = '';
-        while (this.pos < this.source.length && /\d/.test(this.source[this.pos])) {
-          num += this.source[this.pos];
-          this.pos++;
-        }
-        this.tokens.push({ type: 'NUMBER', value: parseInt(num) });
-        continue;
-      }
-      
-      // Symbols
-      this.tokens.push({ type: 'SYMBOL', value: char });
-      this.pos++;
+    });
+
+    return this.output;
+  }
+
+  getModuleName() {
+    const match = this.code.match(/module\s+([a-zA-Z0-9_-]+)/);
+    return match ? match[1] : 'program';
+  }
+
+  isValid() {
+    return this.code.includes('beQ-') && this.code.includes('qq-');
+  }
+}
+
+// ===== INTERACTIVE EDITOR WITH FILE SAVE =====
+class QtmxEditor {
+  constructor(filename = null) {
+    this.code = '';
+    this.filename = filename;
+    this.isSaved = false;
+  }
+
+  start() {
+    console.log(`\n${c.blue}╔═══════════════════════════════════════╗${c.reset}`);
+    console.log(`${c.blue}║   QTMX Interactive Editor v1.0      ║${c.reset}`);
+    console.log(`${c.blue}║   General Purpose Language          ║${c.reset}`);
+    
+    if (this.filename) {
+      console.log(`${c.blue}║   File: ${this.filename.padEnd(30)}║${c.reset}`);
     }
     
-    return this.tokens;
-  }
-}
+    console.log(`${c.blue}╚═══════════════════════════════════════╝${c.reset}\n`);
 
-// ===== PARSER =====
-class Parser {
-  constructor(tokens) {
-    this.tokens = tokens;
-    this.pos = 0;
-  }
+    console.log(`${c.yellow}Write QTMX code (multi-line supported)${c.reset}`);
+    console.log(`${c.yellow}Commands:${c.reset}`);
+    console.log(`  ${c.cyan}save${c.reset}    - Save to file & execute`);
+    console.log(`  ${c.cyan}show${c.reset}    - Show your code`);
+    console.log(`  ${c.cyan}run${c.reset}     - Execute code`);
+    console.log(`  ${c.cyan}clear${c.reset}   - Delete code`);
+    console.log(`  ${c.cyan}vars${c.reset}    - Show variables`);
+    console.log(`  ${c.cyan}help${c.reset}    - Show help`);
+    console.log(`  ${c.cyan}exit${c.reset}    - Exit (without saving)\n`);
 
-  parse() {
-    const ast = {
-      type: 'Program',
-      services: []
-    };
-
-    while (this.pos < this.tokens.length) {
-      const token = this.tokens[this.pos];
-      
-      if (token.value === 'beQ' || token.value === 'beQ-') {
-        ast.services.push(this.parseService());
-      } else {
-        this.pos++;
-      }
-    }
-
-    return ast;
+    this.repl();
   }
 
-  parseService() {
-    const service = {
-      type: 'Service',
-      edition: 'qtmx-',
-      name: 'default',
-      endpoint: '',
-      events: [],
-      blocks: [],
-      license: 'MTK'
-    };
-
-    this.pos++; // Skip beQ-
-
-    while (this.pos < this.tokens.length) {
-      const token = this.tokens[this.pos];
-      
-      // End of service
-      if (token.value === 'qq' || token.value === 'qq-' || token.value === 'qq+' || token.value === 'qq#') {
-        service.edition = token.value;
-        this.pos++;
-        break;
-      }
-      
-      // Service name
-      if (token.type === 'WORD' && token.value === 'module') {
-        this.pos++;
-        if (this.pos < this.tokens.length && this.tokens[this.pos].type === 'WORD') {
-          service.name = this.tokens[this.pos].value;
-          this.pos++;
-        }
-      }
-      
-      // Endpoint
-      if (token.value === 'endpoint' && this.tokens[this.pos + 1]?.value === ':') {
-        this.pos += 2;
-        if (this.tokens[this.pos].type === 'STRING') {
-          service.endpoint = this.tokens[this.pos].value;
-          this.pos++;
-        }
-      }
-      
-      // License
-      if (token.value === 'license' && this.tokens[this.pos + 1]?.value === ':') {
-        this.pos += 2;
-        if (this.tokens[this.pos].type === 'WORD') {
-          service.license = this.tokens[this.pos].value;
-          this.pos++;
-        }
-      }
-      
-      // Events
-      if (token.value === 'events' && this.tokens[this.pos + 1]?.value === ':') {
-        this.pos += 2;
-        while (this.pos < this.tokens.length && this.tokens[this.pos].value !== 'bbq') {
-          if (this.tokens[this.pos].type === 'WORD') {
-            service.events.push(this.tokens[this.pos].value);
-          }
-          this.pos++;
-        }
-      }
-      
-      this.pos++;
-    }
-
-    return service;
-  }
-}
-
-// ===== CODE GENERATOR =====
-class CodeGenerator {
-  generate(ast) {
-    let code = '// Generated from QTMX- v17\n\n';
-    code += 'const services = {};\n\n';
-
-    for (const service of ast.services) {
-      code += `// Service: ${service.name}\n`;
-      code += `services['${service.name}'] = {\n`;
-      code += `  name: '${service.name}',\n`;
-      code += `  endpoint: '${service.endpoint}',\n`;
-      code += `  edition: '${service.edition}',\n`;
-      code += `  license: '${service.license}',\n`;
-      code += `  execute: async function(data) {\n`;
-      code += `    return { success: true, service: '${service.name}', data: data };\n`;
-      code += `  }\n`;
-      code += `};\n\n`;
-    }
-
-    code += 'module.exports = services;\n';
-    return code;
-  }
-}
-
-// ===== RUNTIME =====
-class Runtime {
-  constructor() {
-    this.services = {};
-    this.state = {};
-  }
-
-  registerService(name, service) {
-    this.services[name] = service;
-  }
-
-  async executeService(serviceName, data) {
-    const service = this.services[serviceName];
-    if (!service) {
-      throw new Error(`Service '${serviceName}' not found`);
-    }
-    return await service.execute(data);
-  }
-}
-
-// ===== REPL =====
-class REPL {
-  constructor() {
-    this.services = {};
-    this.variables = {};
-    this.rl = readline.createInterface({
+  repl() {
+    const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
       terminal: true
     });
+
+    const prompt = () => {
+      rl.question(`${c.magenta}qtmx>>>${c.reset} `, (input) => {
+        const cmd = input.trim();
+
+        if (cmd === 'exit' || cmd === 'quit') {
+          if (!this.isSaved && this.code.trim()) {
+            console.log(`${c.yellow}⚠️  Code not saved!${c.reset}`);
+            prompt();
+            return;
+          }
+          console.log(`\n${c.green}Goodbye!${c.reset}\n`);
+          rl.close();
+          process.exit(0);
+        }
+
+        if (cmd === 'save') {
+          this.save(rl);
+          return;
+        }
+
+        if (cmd === 'run') {
+          this.execute();
+          prompt();
+          return;
+        }
+
+        if (cmd === 'show') {
+          this.show();
+          prompt();
+          return;
+        }
+
+        if (cmd === 'vars') {
+          this.showVars();
+          prompt();
+          return;
+        }
+
+        if (cmd === 'clear') {
+          this.code = '';
+          this.isSaved = false;
+          console.log(`${c.green}✓ Code cleared${c.reset}`);
+          prompt();
+          return;
+        }
+
+        if (cmd === 'help') {
+          this.help();
+          prompt();
+          return;
+        }
+
+        if (cmd === '') {
+          prompt();
+          return;
+        }
+
+        // Add code line
+        this.code += cmd + '\n';
+        this.isSaved = false;
+        prompt();
+      });
+    };
+
+    prompt();
   }
 
-  start() {
-    console.log('╔════════════════════════════════╗');
-    console.log('║   QTMX- Interactive Shell v17  ║');
-    console.log('║  Pure Reactive Language        ║');
-    console.log('╚════════════════════════════════╝\n');
-    console.log('Commands: event, vars, services, help, exit\n');
-
-    this.prompt();
-  }
-
-  prompt() {
-    this.rl.question('qtmx> ', (input) => {
-      this.handleCommand(input);
-      this.prompt();
-    });
-  }
-
-  handleCommand(input) {
-    const parts = input.trim().split(' ');
-    const command = parts[0];
-
-    if (command === 'exit' || command === 'quit') {
-      this.rl.close();
-      process.exit(0);
+  save(rl) {
+    if (!this.code.trim()) {
+      console.log(`${c.red}❌ No code to save!${c.reset}`);
+      return;
     }
 
-    if (command === 'help') {
-      console.log('\nAvailable commands:');
-      console.log('  event <name> <json>  - Trigger event');
-      console.log('  vars                 - Show variables');
-      console.log('  services             - List services');
-      console.log('  help                 - Show this help');
-      console.log('  exit                 - Exit REPL\n');
-    } else if (command === 'vars') {
-      console.log('📊 Variables:', Object.keys(this.variables).length === 0 ? '(none)' : this.variables);
-    } else if (command === 'services') {
-      console.log('📦 Services:', Object.keys(this.services).length === 0 ? '(none)' : Object.keys(this.services));
-    } else if (command === 'event') {
-      if (parts.length < 2) {
-        console.log('Usage: event <name> [data]');
-      } else {
-        console.log(`▶️  Event fired: ${parts[1]}`);
-        console.log('✓ Event handled');
-      }
-    } else if (input.trim() === '') {
-      // Empty input, do nothing
+    let filename = this.filename;
+
+    if (!filename) {
+      // Ask for filename
+      rl.question(`${c.yellow}Filename (without .qtmx-):${c.reset} `, (input) => {
+        filename = input.trim();
+        if (!filename) {
+          console.log(`${c.red}Invalid filename${c.reset}`);
+          return;
+        }
+        this.saveFile(filename, rl);
+      });
     } else {
-      console.log(`Unknown command: ${command}. Type 'help' for commands.`);
+      this.saveFile(filename, rl);
     }
+  }
+
+  saveFile(filename, rl) {
+    // Add .qtmx- extension
+    if (!filename.endsWith('.qtmx-')) {
+      filename = filename + '.qtmx-';
+    }
+
+    try {
+      // Save file
+      fs.writeFileSync(filename, this.code);
+      this.isSaved = true;
+
+      console.log(`\n${c.green}💾 Saved as ${filename}${c.reset}\n`);
+
+      // Execute immediately
+      this.execute();
+
+      // Continue editing
+      const prompt = () => {
+        rl.question(`${c.magenta}qtmx>>>${c.reset} `, (input) => {
+          const cmd = input.trim();
+
+          if (cmd === 'exit') {
+            console.log(`\n${c.green}Goodbye!${c.reset}\n`);
+            rl.close();
+            process.exit(0);
+          }
+
+          if (cmd === 'save') {
+            this.save(rl);
+            return;
+          }
+
+          if (cmd === 'run') {
+            this.execute();
+            prompt();
+            return;
+          }
+
+          if (cmd === 'show') {
+            this.show();
+            prompt();
+            return;
+          }
+
+          if (cmd === 'vars') {
+            this.showVars();
+            prompt();
+            return;
+          }
+
+          if (cmd === 'clear') {
+            this.code = '';
+            this.isSaved = false;
+            console.log(`${c.green}✓ Code cleared${c.reset}`);
+            prompt();
+            return;
+          }
+
+          if (cmd === 'help') {
+            this.help();
+            prompt();
+            return;
+          }
+
+          if (cmd !== '') {
+            this.code += cmd + '\n';
+            this.isSaved = false;
+          }
+
+          prompt();
+        });
+      };
+
+      prompt();
+
+    } catch (err) {
+      console.error(`${c.red}❌ Error saving: ${err.message}${c.reset}`);
+    }
+  }
+
+  execute() {
+    if (!this.code.trim()) {
+      console.log(`${c.red}No code to execute!${c.reset}`);
+      return;
+    }
+
+    console.log(`${c.green}▶️  Executing...${c.reset}\n`);
+
+    const runtime = new QtmxRuntime(this.code);
+
+    if (!runtime.isValid()) {
+      console.log(`${c.red}❌ Invalid QTMX syntax. Use beQ- and qq-${c.reset}\n`);
+      return;
+    }
+
+    const output = runtime.run();
+    
+    if (output.length === 0) {
+      console.log(`${c.yellow}ℹ️  No output. Use: emit success "message"${c.reset}\n`);
+      return;
+    }
+
+    // Show output
+    output.forEach(msg => {
+      console.log(msg);
+    });
+
+    console.log();
+    console.log(`${c.cyan}📦 ${runtime.getModuleName()}${c.reset}`);
+    console.log(`${c.green}✅ Done${c.reset}\n`);
+  }
+
+  show() {
+    if (!this.code.trim()) {
+      console.log(`${c.yellow}No code written${c.reset}`);
+      return;
+    }
+
+    console.log(`\n${c.cyan}─── Your Code ───${c.reset}`);
+    this.code.split('\n').forEach((line, i) => {
+      if (line) console.log(`${c.yellow}${i + 1}${c.reset}  ${line}`);
+    });
+    console.log(`${c.cyan}─────────────────${c.reset}\n`);
+  }
+
+  showVars() {
+    const runtime = new QtmxRuntime(this.code);
+    runtime.run();
+    
+    if (Object.keys(runtime.variables).length === 0) {
+      console.log(`${c.yellow}No variables${c.reset}`);
+      return;
+    }
+
+    console.log(`${c.cyan}Variables:${c.reset}`);
+    for (const [name, value] of Object.entries(runtime.variables)) {
+      console.log(`  ${c.yellow}${name}${c.reset} = ${value}`);
+    }
+  }
+
+  help() {
+    console.log(`
+${c.cyan}QTMX Language - General Purpose Programming${c.reset}
+
+${c.yellow}Syntax:${c.reset}
+  beQ-              Start program
+  qq-               End program
+  module name       Define module
+  var x = value     Define variable
+  emit success "x"  Output
+  aaq               Logic block
+  bbq               Data block
+
+${c.yellow}Commands:${c.reset}
+  save   - Save to file & execute
+  run    - Execute code
+  show   - Display code
+  vars   - Show variables
+  clear  - Delete code
+  help   - Show this
+  exit   - Quit
+
+${c.yellow}Example:${c.reset}
+  beQ-
+    module calculator
+    var x = 10
+    var y = 20
+    aaq
+      emit success "Sum: 30"
+    aaq
+  qq-
+    `);
   }
 }
 
-// ===== MAIN EXECUTION =====
-function main() {
-  const file = process.argv[2];
-
-  if (!file) {
-    console.log('QTMX- v17 Interpreter');
-    console.log('Usage: qtmx <file.qtmx->');
-    console.log('Example: qtmx app.qtmx-\n');
-    process.exit(1);
-  }
-
+// ===== EXECUTE FILE =====
+function execute(file) {
   if (!fs.existsSync(file)) {
-    console.error(`❌ Error: File '${file}' not found`);
+    console.error(`${c.red}❌ File not found: ${file}${c.reset}`);
     process.exit(1);
   }
 
   try {
     const source = fs.readFileSync(file, 'utf8');
-    
-    // Compile
-    const tokenizer = new Tokenizer(source);
-    const tokens = tokenizer.tokenize();
-    
-    const parser = new Parser(tokens);
-    const ast = parser.parse();
-    
-    const generator = new CodeGenerator();
-    const jsCode = generator.generate(ast);
-    
-    // Execute
-    console.log(`▶️  Executing ${path.basename(file)}...\n`);
-    
-    const services = eval(jsCode);
-    
-    // Create runtime
-    const runtime = new Runtime();
-    for (const name in services) {
-      runtime.registerService(name, services[name]);
+    console.log(`${c.green}▶️  Executing ${path.basename(file)}...${c.reset}\n`);
+
+    const runtime = new QtmxRuntime(source);
+
+    if (!runtime.isValid()) {
+      console.log(`${c.red}❌ Invalid QTMX syntax${c.reset}`);
+      process.exit(1);
     }
-    
-    // Show info
-    if (ast.services.length > 0) {
-      console.log(`📦 Loaded ${ast.services.length} service(s)`);
-      ast.services.forEach(s => {
-        console.log(`   • ${s.name} (${s.edition})`);
-      });
-      console.log('');
-    }
-    
-    console.log('✅ QTMX- execution completed successfully\n');
-    
+
+    const output = runtime.run();
+    output.forEach(msg => {
+      console.log(msg);
+    });
+
+    console.log();
+    console.log(`${c.cyan}📦 ${runtime.getModuleName()}${c.reset}`);
+    console.log(`${c.green}✅ Done${c.reset}\n`);
+
   } catch (err) {
-    console.error('❌ Error:', err.message);
+    console.error(`${c.red}❌ Error: ${err.message}${c.reset}`);
     process.exit(1);
   }
 }
 
-// Run
+// ===== HELP =====
+function help() {
+  console.log(`
+${c.cyan}╔══════════════════════════════════╗${c.reset}
+${c.cyan}║   QTMX v17.0.2                  ║${c.reset}
+${c.cyan}║   General Purpose Language      ║${c.reset}
+${c.cyan}╚══════════════════════════════════╝${c.reset}
+
+${c.yellow}Usage:${c.reset}
+  qtmx              Interactive editor
+  qtmx ext file     Create & edit file
+  qtmx <file>       Execute file
+  qtmx help         Show help
+
+${c.yellow}Examples:${c.reset}
+  qtmx              # Open editor
+  qtmx ext myapp    # Create myapp.qtmx-
+  qtmx app.qtmx-    # Run file
+
+${c.yellow}Basic Program:${c.reset}
+  beQ-
+    module myapp
+    var x = 5
+    aaq
+      emit success "Value: 5"
+    aaq
+  qq-
+
+${c.cyan}Built by lutium, age 12${c.reset}
+${c.cyan}GitHub: github.com/lutiumm/qtmx-lang${c.reset}
+  `);
+}
+
+// ===== MAIN =====
+function main() {
+  const args = process.argv.slice(2);
+
+  if (args.length === 0) {
+    // Interactive editor
+    const editor = new QtmxEditor();
+    editor.start();
+  } else if (args[0] === 'ext') {
+    // qtmx ext filename
+    const filename = args[1] || 'app';
+    const editor = new QtmxEditor(filename);
+    editor.start();
+  } else if (args[0] === 'help' || args[0] === '--help') {
+    help();
+  } else if (args[0].endsWith('.qtmx-') || args[0].endsWith('.qtmx+') || args[0].endsWith('.qtmx#')) {
+    execute(args[0]);
+  } else {
+    console.log(`${c.red}Unknown: ${args[0]}${c.reset}`);
+    console.log(`Type: qtmx help`);
+    process.exit(1);
+  }
+}
+
 main();
