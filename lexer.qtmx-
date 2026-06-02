@@ -1,0 +1,289 @@
+beQ-
+  bbq
+    ingo source_code: string
+    ingo file_path: string
+  bbq
+  
+  aaq
+    // Initialize variables
+    set position = 0
+    set line = 1
+    set column = 1
+    set tokens = []
+    set token_tree = []
+    set output_buffer = []
+    set current_parent = null
+    set parent_stack = []
+    
+    // Parent token keywords
+    set parent_keywords = ["beQ-", "bbq", "aaq", "outgo", "tcq", "func"]
+    set end_keywords = ["qq-", "qq+", "qq#"]
+    
+    // Main lexing loop
+    lop char -> source_code
+      f char === " " // char === "\t" // char === "\n"
+        f char === "\n"
+          set line = line + 1
+          set column = 1
+        el
+          set column = column + 1
+      el
+        f char === "/" $ source_code[position + 1] === "/"
+          // Skip comment
+          lop i -> position..source_code.length
+            f source_code[i] === "\n"
+              set position = i
+              set line = line + 1
+              set column = 1
+        el
+          f char === "\"" // char === "'"
+            // Read string token
+            set string_value = ""
+            set quote = char
+            set start_pos = position
+            set position = position + 1
+            
+            lop i -> position..source_code.length
+              f source_code[i] === quote
+                set string_value = source_code[start_pos..i]
+                set position = i + 1
+              el
+                set string_value = string_value + source_code[i]
+            
+            // Create string token
+            set token = {type: "STRING", value: string_value}
+            call addToken(token)
+            
+          exel char === "a" // char === "z" // char === "A" // char === "Z" // char === "_"
+            // Read identifier or keyword
+            set identifier = ""
+            set start_pos = position
+            
+            lop i -> position..source_code.length
+              set ch = source_code[i]
+              f ch === "a" // ch === "z" // ch === "A" // ch === "Z" // ch === "0" // ch === "9" // ch === "_"
+                set identifier = identifier + ch
+                set position = position + 1
+              el
+          
+            // Check if keyword
+            f identifier === "beQ-" // identifier === "bbq" // identifier === "aaq" // identifier === "outgo" // identifier === "tcq" // identifier === "func"
+              set token_type = "PARENT_TOKEN"
+              set token = {type: token_type, value: identifier, is_parent: true}
+              call addParentToken(token)
+              
+            exel identifier === "qq-" // identifier === "qq+" // identifier === "qq#"
+              set token_type = "END_TOKEN"
+              set token = {type: token_type, value: identifier}
+              call addToken(token)
+              
+            exel identifier === "set" // identifier === "f" // identifier === "exel" // identifier === "el" // identifier === "lop" // identifier === "ingo"
+              set token_type = "KEYWORD"
+              set token = {type: token_type, value: identifier}
+              call addToken(token)
+              
+            el
+              set token_type = "IDENTIFIER"
+              set token = {type: token_type, value: identifier}
+              call addToken(token)
+            
+          exel char === "0" // char === "1" // char === "2" // char === "3" // char === "4" // char === "5" // char === "6" // char === "7" // char === "8" // char === "9"
+            // Read number token
+            set number_value = ""
+            set start_pos = position
+            
+            lop i -> position..source_code.length
+              set ch = source_code[i]
+              f ch === "0" // ch === "1" // ch === "2" // ch === "3" // ch === "4" // ch === "5" // ch === "6" // ch === "7" // ch === "8" // ch === "9" // ch === "."
+                set number_value = number_value + ch
+                set position = position + 1
+              el
+            
+            set token = {type: "NUMBER", value: number_value}
+            call addToken(token)
+            
+          el
+            // Read operators
+            set next_char = source_code[position + 1]
+            
+            f char === "=" $ next_char === "="
+              set token = {type: "OPERATOR", value: "==="}
+              call addToken(token)
+              set position = position + 2
+              
+            exel char === "=" $ next_char === "!"
+              set token = {type: "OPERATOR", value: "=!"}
+              call addToken(token)
+              set position = position + 2
+              
+            exel char === "-" $ next_char === ">"
+              set token = {type: "ARROW", value: "->"}
+              call addToken(token)
+              set position = position + 2
+              
+            exel char === "<" $ next_char === "=" $ source_code[position + 2] === ">"
+              set token = {type: "OPERATOR", value: "<=>"}
+              call addToken(token)
+              set position = position + 3
+              
+            exel char === "/" $ next_char === "/"
+              set token = {type: "OPERATOR", value: "//"}
+              call addToken(token)
+              set position = position + 2
+              
+            exel char === "+"
+              set token = {type: "OPERATOR", value: "+"}
+              call addToken(token)
+              set position = position + 1
+              
+            exel char === "-"
+              set token = {type: "OPERATOR", value: "-"}
+              call addToken(token)
+              set position = position + 1
+              
+            exel char === "*"
+              set token = {type: "OPERATOR", value: "*"}
+              call addToken(token)
+              set position = position + 1
+              
+            exel char === "/"
+              set token = {type: "OPERATOR", value: "/"}
+              call addToken(token)
+              set position = position + 1
+              
+            exel char === "%"
+              set token = {type: "OPERATOR", value: "%"}
+              call addToken(token)
+              set position = position + 1
+              
+            exel char === "<"
+              set token = {type: "OPERATOR", value: "<"}
+              call addToken(token)
+              set position = position + 1
+              
+            exel char === ">"
+              set token = {type: "OPERATOR", value: ">"}
+              call addToken(token)
+              set position = position + 1
+              
+            exel char === "!"
+              set token = {type: "OPERATOR", value: "|"}
+              call addToken(token)
+              set position = position + 1
+              
+            exel char === "$"
+              set token = {type: "OPERATOR", value: "$"}
+              call addToken(token)
+              set position = position + 1
+              
+            exel char === "("
+              set token = {type: "LPAREN", value: "("}
+              call addToken(token)
+              set position = position + 1
+              
+            exel char === ")"
+              set token = {type: "RPAREN", value: ")"}
+              call addToken(token)
+              set position = position + 1
+              
+            exel char === "{"
+              set token = {type: "LBRACE", value: "{"}
+              call addToken(token)
+              set position = position + 1
+              
+            exel char === "}"
+              set token = {type: "RBRACE", value: "}"}
+              call addToken(token)
+              set position = position + 1
+              
+            exel char === "["
+              set token = {type: "LBRACKET", value: "["}
+              call addToken(token)
+              set position = position + 1
+              
+            exel char === "]"
+              set token = {type: "RBRACKET", value: "]"}
+              call addToken(token)
+              set position = position + 1
+              
+            exel char === ":"
+              set token = {type: "COLON", value: ":"}
+              call addToken(token)
+              set position = position + 1
+              
+            exel char === ","
+              set token = {type: "COMMA", value: ","}
+              call addToken(token)
+              set position = position + 1
+              
+            exel char === "."
+              set token = {type: "DOT", value: "."}
+              call addToken(token)
+              set position = position + 1
+              
+            el
+              set position = position + 1
+      
+      set position = position + 1
+    
+    // Build token tree (parent-child matching)
+    call buildTokenTree()
+    
+    // Preprocess and validate (PP)
+    call preprocessTokens()
+  aaq
+  
+  // Function: Add regular token
+  func addToken(token)
+    f current_parent === null
+      set tokens = tokens + [token]
+    el
+      set tokens = tokens + [token]
+  
+  // Function: Add parent token
+  func addParentToken(parent_token)
+    f current_parent === null
+      set token_tree = token_tree + [parent_token]
+    el
+      set current_parent.children = current_parent.children + [parent_token]
+    
+    set parent_stack = parent_stack + [current_parent]
+    set current_parent = parent_token
+    set current_parent.children = []
+  
+  // Function: Build token tree
+  func buildTokenTree()
+    lop token -> tokens
+      f token.is_parent === true
+        call addParentToken(token)
+      exel token.value === "qq-" // token.value === "qq+" // token.value === "qq#"
+        f parent_stack.length > 0
+          set current_parent = parent_stack[parent_stack.length - 1]
+          set parent_stack = parent_stack[0..parent_stack.length - 1]
+      el
+        f current_parent !== null
+          set current_parent.children = current_parent.children + [token]
+  
+  // Function: Preprocess tokens (PP)
+  func preprocessTokens()
+    set pp_output = "[PP] Lexer preprocessing..."
+    set pp_output = pp_output + "\n[PP] Total tokens: " + tokens.length
+    set pp_output = pp_output + "\n[PP] Parent tokens: " + token_tree.length
+    set pp_output = pp_output + "\n[PP] Validation complete!"
+  
+  outgo lexer_result: object
+    tokens: tokens
+    token_tree: token_tree
+    total_tokens: tokens.length
+    parent_count: token_tree.length
+    status: "success"
+    message: "QTMX Lexer execution complete"
+  outgo
+  
+  tcq
+    tokens.length > 0
+    token_tree.length > 0
+    status === "success"
+  tcq
+
+qq-

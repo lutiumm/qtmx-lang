@@ -1,0 +1,206 @@
+beQ-
+  bbq
+    ingo tokens: array
+    ingo token_tree: array
+  bbq
+  
+  aaq
+    // Initialize parser variables
+    set position = 0
+    set current_token = null
+    set ast_nodes = []
+    set ast_tree = []
+    set error_list = []
+    set scope_stack = []
+    set current_scope = null
+    set parse_output = []
+    
+    // Start parsing
+    set parse_output = parse_output + ["[PARSER] Starting parse..."]
+    set parse_output = parse_output + ["[PARSER] Input tokens: " + tokens.length]
+    
+    // Parse program structure
+    lop token -> tokens
+      f token.value === "beQ-"
+        set parse_output = parse_output + ["[PARSER] Found program start: beQ-"]
+        set program_node = {type: "Program", children: []}
+        set ast_tree = ast_tree + [program_node]
+        set current_scope = program_node
+        
+      exel token.value === "bbq"
+        set parse_output = parse_output + ["[PARSER] Found input block: bbq"]
+        set input_block = {type: "InputBlock", fields: []}
+        
+        f current_scope !== null
+          set current_scope.children = current_scope.children + [input_block]
+        el
+          set ast_nodes = ast_nodes + [input_block]
+        
+        set current_scope = input_block
+        
+      exel token.value === "ingo"
+        set parse_output = parse_output + ["[PARSER] Found input field: ingo"]
+        set input_field = {type: "InputField", name: "", data_type: ""}
+        
+        f current_scope !== null $ current_scope.type === "InputBlock"
+          set current_scope.fields = current_scope.fields + [input_field]
+        
+      exel token.value === "aaq"
+        set parse_output = parse_output + ["[PARSER] Found logic block: aaq"]
+        set logic_block = {type: "LogicBlock", statements: []}
+        
+        f current_scope !== null
+          set current_scope.children = current_scope.children + [logic_block]
+        el
+          set ast_nodes = ast_nodes + [logic_block]
+        
+        set current_scope = logic_block
+        
+      exel token.value === "set"
+        set parse_output = parse_output + ["[PARSER] Found assignment: set"]
+        set assignment_node = {type: "Assignment", variable: "", value: ""}
+        
+        f current_scope !== null $ current_scope.type === "LogicBlock"
+          set current_scope.statements = current_scope.statements + [assignment_node]
+        el
+          set ast_nodes = ast_nodes + [assignment_node]
+        
+      exel token.value === "f"
+        set parse_output = parse_output + ["[PARSER] Found condition: f"]
+        set condition_node = {type: "IfCondition", condition: "", then_block: [], else_block: []}
+        
+        f current_scope !== null $ current_scope.type === "LogicBlock"
+          set current_scope.statements = current_scope.statements + [condition_node]
+        el
+          set ast_nodes = ast_nodes + [condition_node]
+        
+      exel token.value === "exel"
+        set parse_output = parse_output + ["[PARSER] Found else-if: exel"]
+        
+      exel token.value === "el"
+        set parse_output = parse_output + ["[PARSER] Found else: el"]
+        
+      exel token.value === "lop"
+        set parse_output = parse_output + ["[PARSER] Found loop: lop"]
+        set loop_node = {type: "Loop", variable: "", range: "", body: []}
+        
+        f current_scope !== null $ current_scope.type === "LogicBlock"
+          set current_scope.statements = current_scope.statements + [loop_node]
+        el
+          set ast_nodes = ast_nodes + [loop_node]
+        
+      exel token.value === "func"
+        set parse_output = parse_output + ["[PARSER] Found function: func"]
+        set func_node = {type: "Function", name: "", params: [], body: []}
+        set ast_nodes = ast_nodes + [func_node]
+        
+      exel token.value === "call"
+        set parse_output = parse_output + ["[PARSER] Found function call: call"]
+        set call_node = {type: "FunctionCall", name: "", args: []}
+        
+        f current_scope !== null $ current_scope.type === "LogicBlock"
+          set current_scope.statements = current_scope.statements + [call_node]
+        
+      exel token.value === "outgo"
+        set parse_output = parse_output + ["[PARSER] Found output block: outgo"]
+        set output_block = {type: "OutputBlock", fields: []}
+        
+        f current_scope !== null
+          set current_scope.children = current_scope.children + [output_block]
+        el
+          set ast_nodes = ast_nodes + [output_block]
+        
+        set current_scope = output_block
+        
+      exel token.value === "tcq"
+        set parse_output = parse_output + ["[PARSER] Found validation: tcq"]
+        set validation_block = {type: "ValidationBlock", rules: []}
+        
+        f current_scope !== null
+          set current_scope.children = current_scope.children + [validation_block]
+        el
+          set ast_nodes = ast_nodes + [validation_block]
+        
+        set current_scope = validation_block
+        
+      exel token.type === "OPERATOR" $ token.value === "===" // token.value === "=!" // token.value === "<" // token.value === ">" // token.value === "<=>" // token.value === "$" // token.value === "//" // token.value === "|"
+        set parse_output = parse_output + ["[PARSER] Found operator: " + token.value]
+        
+      exel token.type === "STRING"
+        set parse_output = parse_output + ["[PARSER] Found string: " + token.value]
+        
+      exel token.type === "NUMBER"
+        set parse_output = parse_output + ["[PARSER] Found number: " + token.value]
+        
+      exel token.type === "IDENTIFIER"
+        set parse_output = parse_output + ["[PARSER] Found identifier: " + token.value]
+        
+      exel token.value === "qq-" // token.value === "qq+" // token.value === "qq#"
+        set parse_output = parse_output + ["[PARSER] Found program end: " + token.value]
+        f current_scope !== null $ current_scope.type === "Program"
+          set current_scope = null
+    
+    // Validate AST structure
+    call validateAST()
+    
+    // Generate AST summary
+    set parse_output = parse_output + ["[PARSER] AST nodes created: " + ast_nodes.length]
+    set parse_output = parse_output + ["[PARSER] Program structure: " + ast_tree.length]
+    set parse_output = parse_output + ["[PARSER] Parsing complete!"]
+  aaq
+  
+  // Function: Validate AST
+  func validateAST()
+    set parse_output = parse_output + ["[AST] Validating structure..."]
+    
+    lop node -> ast_nodes
+      f node.type === "Program"
+        set parse_output = parse_output + ["[AST] ✓ Program node valid"]
+      exel node.type === "InputBlock"
+        set parse_output = parse_output + ["[AST] ✓ InputBlock node valid"]
+      exel node.type === "LogicBlock"
+        set parse_output = parse_output + ["[AST] ✓ LogicBlock node valid"]
+      exel node.type === "OutputBlock"
+        set parse_output = parse_output + ["[AST] ✓ OutputBlock node valid"]
+      exel node.type === "ValidationBlock"
+        set parse_output = parse_output + ["[AST] ✓ ValidationBlock node valid"]
+      exel node.type === "Function"
+        set parse_output = parse_output + ["[AST] ✓ Function node valid"]
+      exel node.type === "Assignment"
+        set parse_output = parse_output + ["[AST] ✓ Assignment node valid"]
+      exel node.type === "IfCondition"
+        set parse_output = parse_output + ["[AST] ✓ IfCondition node valid"]
+      exel node.type === "Loop"
+        set parse_output = parse_output + ["[AST] ✓ Loop node valid"]
+      exel node.type === "FunctionCall"
+        set parse_output = parse_output + ["[AST] ✓ FunctionCall node valid"]
+      el
+        set parse_output = parse_output + ["[AST] ? Unknown node type: " + node.type]
+    
+    set parse_output = parse_output + ["[AST] Validation complete!"]
+  
+  // Function: Print parse output
+  func printParseOutput()
+    lop output -> parse_output
+      outgo debug_output: string
+        message: output
+      outgo
+  
+  outgo parser_result: object
+    ast_nodes: ast_nodes
+    ast_tree: ast_tree
+    total_nodes: ast_nodes.length
+    parse_output: parse_output
+    error_count: error_list.length
+    status: "success"
+    message: "QTMX Parser execution complete"
+  outgo
+  
+  tcq
+    ast_nodes.length > 0
+    parse_output.length > 0
+    error_list.length === 0
+    status === "success"
+  tcq
+
+qq-

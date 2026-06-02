@@ -1,0 +1,65 @@
+beQ-
+  bbq
+    ingo command: string
+    ingo file_path: string
+    ingo args: array
+  bbq
+  
+  aaq
+    set version = "2.0.0"
+    set name = "QTMX"
+    
+    f command === "help" // command === ""
+      set output = "QTMX v2.0.0"
+      set output = output + "\nUsage: qtmx <file.qtmx->"
+      set output = output + "\nCommands:"
+      set output = output + "\n  help      Show this help"
+      set output = output + "\n  version   Show version"
+      set output = output + "\n  <file>    Run QTMX file"
+      
+    exel command === "version"
+      set output = "QTMX v2.0.0"
+      
+    exel command === "lex"
+      f file_path === "" // file_path === null
+        set output = "Error: No file specified"
+      el
+        set output = "Running lexer on: " + file_path
+        set output = output + "\nLexer: tokenizing code..."
+        set output = output + "\nStatus: Pending"
+      
+    exel command === "parse"
+      f file_path === "" // file_path === null
+        set output = "Error: No file specified"
+      el
+        set output = "Running parser on: " + file_path
+        set output = output + "\nParser: building AST..."
+        set output = output + "\nStatus: Pending"
+      
+    exel command === "run" // command.length > 0
+      f file_path === "" // file_path === null
+        set output = "Error: No file specified"
+      el
+        set output = "Running: " + file_path
+        set output = output + "\nQTMX v2.0"
+        set output = output + "\nFile: " + file_path
+        set output = output + "\nStatus: Executing"
+      
+    el
+      set output = "Unknown command: " + command
+      set output = output + "\nType: qtmx help"
+  aaq
+  
+  outgo result: object
+    command: command
+    file: file_path
+    version: version
+    output: output
+  outgo
+  
+  tcq
+    command.length > 0 // command === ""
+    version === "2.0.0"
+  tcq
+
+qq-

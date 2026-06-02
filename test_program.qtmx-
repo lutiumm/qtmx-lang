@@ -1,0 +1,30 @@
+beQ-
+  bbq
+    ingo username: string
+    ingo age: number
+  bbq
+  
+  aaq
+    set name = "John"
+    set years = 30
+    
+    f years >= 18
+      set status = "Adult"
+    el
+      set status = "Minor"
+    
+    lop i -> 0..5
+      set count = i
+  aaq
+  
+  outgo result: object
+    name: name
+    status: status
+  outgo
+  
+  tcq
+    username.length > 0
+    age > 0
+  tcq
+
+qq-
