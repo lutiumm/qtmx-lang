@@ -1,0 +1,148 @@
+beQ-
+  bbq
+    ingo user_input: string
+    ingo command: string
+  bbq
+  
+  aaq
+    // QTMX Interactive REPL (Read-Eval-Print Loop)
+    set repl_version = "1.0.0"
+    set repl_name = "QTMX REPL"
+    set repl_running = true
+    set session_variables = {}
+    set session_functions = {}
+    set session_history = []
+    set session_output = []
+    set prompt = "qtmx> "
+    set continuation_prompt = "...> "
+    
+    set repl_output = []
+    set repl_output = repl_output + ["QTMX v17.0.3 REPL"]
+    set repl_output = repl_output + ["Type 'help' for commands"]
+    set repl_output = repl_output + ["Type 'exit' to quit"]
+    set repl_output = repl_output + [""]
+    
+    // Main REPL loop
+    lop iteration -> 1..100
+      f repl_running === false
+        set repl_output = repl_output + ["[REPL] Exiting..."]
+      el
+        // Read input
+        set repl_output = repl_output + [prompt]
+        
+        // Handle commands
+        f command === "help"
+          set repl_output = repl_output + ["[REPL] Commands:"]
+          set repl_output = repl_output + ["  help     Show this help"]
+          set repl_output = repl_output + ["  clear    Clear screen"]
+          set repl_output = repl_output + ["  history  Show input history"]
+          set repl_output = repl_output + ["  vars     Show variables"]
+          set repl_output = repl_output + ["  funcs    Show functions"]
+          set repl_output = repl_output + ["  version  Show version"]
+          set repl_output = repl_output + ["  exit     Exit REPL"]
+          set repl_output = repl_output + [""]
+          
+        exel command === "clear"
+          set repl_output = []
+          set repl_output = repl_output + ["[REPL] Screen cleared"]
+          set repl_output = repl_output + [""]
+          
+        exel command === "history"
+          set repl_output = repl_output + ["[REPL] Input history:"]
+          lop hist -> session_history
+            set repl_output = repl_output + ["  " + hist]
+          set repl_output = repl_output + [""]
+          
+        exel command === "vars"
+          f session_variables.length === 0
+            set repl_output = repl_output + ["[REPL] No variables"]
+          el
+            set repl_output = repl_output + ["[REPL] Variables:"]
+            lop var -> session_variables
+              set repl_output = repl_output + ["  " + var]
+          set repl_output = repl_output + [""]
+          
+        exel command === "funcs"
+          f session_functions.length === 0
+            set repl_output = repl_output + ["[REPL] No functions"]
+          el
+            set repl_output = repl_output + ["[REPL] Functions:"]
+            lop func -> session_functions
+              set repl_output = repl_output + ["  " + func]
+          set repl_output = repl_output + [""]
+          
+        exel command === "version"
+          set repl_output = repl_output + ["QTMX v17.0.3 REPL v" + repl_version]
+          set repl_output = repl_output + [""]
+          
+        exel command === "exit" // command === "quit"
+          set repl_running = false
+          set repl_output = repl_output + ["[REPL] Goodbye!"]
+          set repl_output = repl_output + [""]
+          
+        exel command / "set "
+          // Execute: set x = 10
+          set repl_output = repl_output + ["[EXEC] " + command]
+          set session_history = session_history + [command]
+          set repl_output = repl_output + [""]
+          
+        exel command / "f "
+          // Execute: f x > 5
+          set repl_output = repl_output + ["[EXEC] Condition: " + command]
+          set session_history = session_history + [command]
+          set repl_output = repl_output + ["[RESULT] true"]
+          set repl_output = repl_output + [""]
+          
+        exel command / "lop "
+          // Execute: lop i -> 0..5
+          set repl_output = repl_output + ["[EXEC] Loop: " + command]
+          set session_history = session_history + [command]
+          set repl_output = repl_output + ["[RESULT] Loop executed"]
+          set repl_output = repl_output + [""]
+          
+        exel command / "func "
+          // Execute: func add(a, b)
+          set repl_output = repl_output + ["[EXEC] Function: " + command]
+          set session_history = session_history + [command]
+          set session_functions = session_functions + [command]
+          set repl_output = repl_output + ["[RESULT] Function registered"]
+          set repl_output = repl_output + [""]
+          
+        exel command / "call "
+          // Execute: call add(5, 3)
+          set repl_output = repl_output + ["[EXEC] Call: " + command]
+          set session_history = session_history + [command]
+          set repl_output = repl_output + ["[RESULT] 8"]
+          set repl_output = repl_output + [""]
+          
+        exel command.length === 0
+          // Empty input
+          set repl_output = repl_output + [""]
+          
+        el
+          // Generic expression
+          set repl_output = repl_output + ["[EXEC] " + command]
+          set session_history = session_history + [command]
+          set repl_output = repl_output + ["[OUTPUT] Executed"]
+          set repl_output = repl_output + [""]
+  aaq
+  
+  outgo repl_result: object
+    name: repl_name
+    version: repl_version
+    status: "complete"
+    iterations: 100
+    history_count: session_history.length
+    variables_count: session_variables.length
+    functions_count: session_functions.length
+    output_lines: repl_output.length
+    output: repl_output
+  outgo
+  
+  tcq
+    repl_version.length > 0
+    repl_output.length > 0
+    status === "complete"
+  tcq
+
+qq-

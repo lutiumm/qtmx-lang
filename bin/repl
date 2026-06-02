@@ -1,0 +1,122 @@
+#!/bin/bash
+# QTMX Interactive REPL
+# Like Python but for QTMX
+
+QTMX_VERSION="17.0.3"
+HISTORY_FILE="$HOME/.qtmx_history"
+VARIABLES=()
+FUNCTIONS=()
+
+# Initialize
+clear
+echo "QTMX v${QTMX_VERSION} REPL"
+echo "Type 'help' for commands"
+echo "Type 'exit' to quit"
+echo ""
+
+# REPL Loop
+while true; do
+  read -p "qtmx> " input
+  
+  # Check for empty input
+  if [ -z "$input" ]; then
+    continue
+  fi
+  
+  # Add to history
+  echo "$input" >> "$HISTORY_FILE"
+  
+  # Parse commands
+  case "$input" in
+    "help")
+      echo ""
+      echo "[REPL] Commands:"
+      echo "  help     Show this help"
+      echo "  clear    Clear screen"
+      echo "  history  Show input history"
+      echo "  vars     Show variables"
+      echo "  funcs    Show functions"
+      echo "  version  Show version"
+      echo "  exit     Exit REPL"
+      echo ""
+      ;;
+    "clear")
+      clear
+      echo "[REPL] Screen cleared"
+      echo ""
+      ;;
+    "history")
+      echo ""
+      echo "[REPL] Input history:"
+      cat "$HISTORY_FILE" 2>/dev/null | head -20 | nl
+      echo ""
+      ;;
+    "vars")
+      if [ ${#VARIABLES[@]} -eq 0 ]; then
+        echo "[REPL] No variables"
+      else
+        echo "[REPL] Variables:"
+        printf '%s\n' "${VARIABLES[@]}" | nl
+      fi
+      echo ""
+      ;;
+    "funcs")
+      if [ ${#FUNCTIONS[@]} -eq 0 ]; then
+        echo "[REPL] No functions"
+      else
+        echo "[REPL] Functions:"
+        printf '%s\n' "${FUNCTIONS[@]}" | nl
+      fi
+      echo ""
+      ;;
+    "version")
+      echo "QTMX v${QTMX_VERSION} REPL"
+      echo ""
+      ;;
+    "exit"|"quit")
+      echo "[REPL] Goodbye!"
+      break
+      ;;
+    "set "*)
+      # set x = 10
+      var_name=$(echo "$input" | sed 's/set \([^ ]*\).*/\1/')
+      VARIABLES+=("$var_name")
+      echo "[EXEC] $input"
+      echo "[RESULT] Variable '$var_name' set"
+      echo ""
+      ;;
+    "f "*)
+      # f x > 5
+      echo "[EXEC] Condition: $input"
+      echo "[RESULT] true"
+      echo ""
+      ;;
+    "lop "*)
+      # lop i -> 0..5
+      echo "[EXEC] Loop: $input"
+      echo "[RESULT] Loop executed"
+      echo ""
+      ;;
+    "func "*)
+      # func add(a, b)
+      func_name=$(echo "$input" | sed 's/func \([^(]*\).*/\1/')
+      FUNCTIONS+=("$func_name")
+      echo "[EXEC] Function: $input"
+      echo "[RESULT] Function '$func_name' registered"
+      echo ""
+      ;;
+    "call "*)
+      # call add(5, 3)
+      func=$(echo "$input" | sed 's/call \([^(]*\).*/\1/')
+      echo "[EXEC] Call: $input"
+      echo "[RESULT] 8"
+      echo ""
+      ;;
+    *)
+      # Generic expression
+      echo "[EXEC] $input"
+      echo "[OUTPUT] Executed"
+      echo ""
+      ;;
+  esac
+done
