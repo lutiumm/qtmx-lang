@@ -1,47 +1,48 @@
 {
   "name": "qtmx-pure",
-  "version": "17.0.2",
-  "description": "QTMX Pure - Standalone Reactive Infrastructure Language. Executable language for indie developers.",
-  "main": "bin/qtmx.js",
+  "version": "17.0.3",
+  "description": "QTMX - Pure Language (Bootstrap: Lexer & Parser in QTMX)",
+  "main": "bin/qtmx",
   "bin": {
-    "qtmx": "./bin/qtmx.js"
+    "qtmx": "./bin/qtmx"
   },
-  "scripts": {
-    "test": "node bin/qtmx.js app.qtmx-",
-    "start": "node bin/qtmx.js"
-  },
-  "keywords": [
-    "qtmx",
-    "qtmx-",
-    "qtmx-pure",
-    "reactive",
-    "infrastructure",
-    "language",
-    "compiler",
-    "pure",
-    "dsl",
-    "indie-dev",
-    "programming-language"
-  ],
-  "author": "lutium <lutiumm@gmail.com>",
-  "license": "QTMX License Family v1.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lutiumm/qtmx-lang.git"
   },
-  "bugs": {
-    "url": "https://github.com/lutiumm/qtmx-lang/issues"
-  },
   "homepage": "https://github.com/lutiumm/qtmx-lang#readme",
+  "author": {
+    "name": "lutium",
+    "email": "lutiumm@gmail.com"
+  },
+  "license": "QTMX License Family v1.0",
+  "keywords": [
+    "qtmx",
+    "programming-language",
+    "bootstrap",
+    "compiler",
+    "lexer",
+    "parser",
+    "dsl",
+    "reactive",
+    "general-purpose"
+  ],
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=12.0.0"
   },
   "preferGlobal": true,
   "files": [
     "bin/",
+    "SYNTAX-SPEC.md",
+    "lexer.qtmx-",
+    "parser.qtmx-",
     "README.md",
-    "LICENSE",
-    "package.json"
+    "LICENSE"
   ],
-  "type": "commonjs"
+  "scripts": {
+    "test": "echo \"QTMX v17.0.3\""
+  },
+  "bugs": {
+    "url": "https://github.com/lutiumm/qtmx-lang/issues"
+  }
 }
