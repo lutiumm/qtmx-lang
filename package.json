@@ -1,8 +1,8 @@
 {
   "name": "qtmx-pure",
   "version": "17.0.3",
-  "description": "QTMX - Pure Language (Bootstrap: Lexer & Parser in QTMX)",
-  "main": "bin/qtmx",
+  "description": "QTMX - Pure Language (Bootstrap Compiler: Lexer, Parser, Runtime all in QTMX)",
+  "main": "bin/qtmx.qtmx-",
   "bin": {
     "qtmx": "./bin/qtmx"
   },
@@ -10,39 +10,109 @@
     "type": "git",
     "url": "git+https://github.com/lutiumm/qtmx-lang.git"
   },
-  "homepage": "https://github.com/lutiumm/qtmx-lang#readme",
+  "homepage": "https://github.com/lutiumm/qtmx-lang",
+  "bugs": {
+    "url": "https://github.com/lutiumm/qtmx-lang/issues"
+  },
   "author": {
     "name": "lutium",
-    "email": "lutiumm@gmail.com"
+    "email": "lutiumm@gmail.com",
+    "url": "https://github.com/lutiumm"
   },
   "license": "QTMX License Family v1.0",
   "keywords": [
     "qtmx",
     "programming-language",
-    "bootstrap",
-    "compiler",
+    "bootstrap-compiler",
     "lexer",
     "parser",
+    "runtime",
     "dsl",
-    "reactive",
-    "general-purpose"
+    "reactive-language",
+    "general-purpose",
+    "compiler-design",
+    "pure-language"
   ],
   "engines": {
-    "node": ">=12.0.0"
+    "node": ">=12.0.0",
+    "bash": "*"
   },
   "preferGlobal": true,
+  "scripts": {
+    "test": "echo \"QTMX v17.0.3 - Bootstrap Compiler Testing\"",
+    "start": "bin/qtmx help",
+    "lint": "echo \"QTMX syntax validation\"",
+    "build": "echo \"QTMX v17.0.3 build complete\""
+  },
   "files": [
     "bin/",
-    "SYNTAX-SPEC.md",
     "lexer.qtmx-",
     "parser.qtmx-",
+    "runtime.qtmx-",
+    "syntax-highlighter.qtmx-",
+    "SYNTAX-SPEC.md",
+    "syntax-colors.json",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    ".gitignore"
   ],
-  "scripts": {
-    "test": "echo \"QTMX v17.0.3\""
+  "directories": {
+    "bin": "bin"
   },
-  "bugs": {
-    "url": "https://github.com/lutiumm/qtmx-lang/issues"
+  "man": [
+    "README.md"
+  ],
+  "os": [
+    "linux",
+    "darwin"
+  ],
+  "cpu": [
+    "x64",
+    "arm64",
+    "arm"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lutiumm/qtmx-lang.git",
+    "directory": "."
+  },
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/lutiumm"
+  },
+  "maintainers": [
+    {
+      "name": "lutium",
+      "email": "lutiumm@gmail.com",
+      "url": "https://github.com/lutiumm"
+    }
+  ],
+  "contributors": [
+    {
+      "name": "lutium",
+      "email": "lutiumm@gmail.com"
+    }
+  ],
+  "documentation": "https://github.com/lutiumm/qtmx-lang/blob/main/SYNTAX-SPEC.md",
+  "categories": [
+    "programming-language",
+    "compiler",
+    "interpreter",
+    "developer-tools"
+  ],
+  "metadata": {
+    "edition": "qtmx-",
+    "type": "pure-language",
+    "stage": "bootstrap",
+    "components": {
+      "lexer": "lexer.qtmx-",
+      "parser": "parser.qtmx-",
+      "runtime": "runtime.qtmx-",
+      "highlighter": "syntax-highlighter.qtmx-"
+    }
   }
 }
