@@ -1,0 +1,72 @@
+beQ-
+  bbq
+    ingo source_code: string
+    ingo colors_config: object
+  bbq
+  
+  aaq
+    set keywords = ["beQ-", "qq-", "qq+", "qq#", "f", "exel", "el", "lop", "set", "func", "call"]
+    set blocks = ["bbq", "aaq", "ingo", "outgo", "tcq"]
+    set operators = ["===", "=!", "<", ">", "<=>", "$", "//", "|"]
+    
+    set magenta = "\033[35m"
+    set cyan = "\033[36m"
+    set yellow = "\033[33m"
+    set green = "\033[32m"
+    set blue = "\033[34m"
+    set gray = "\033[90m"
+    set reset = "\033[0m"
+    
+    set highlighted_code = ""
+    set lines = source_code
+    
+    // Process each line
+    lop line -> lines
+      set processed_line = line
+      
+      // Highlight keywords (magenta)
+      lop keyword -> keywords
+        f line / keyword
+          set processed_line = processed_line + magenta + keyword + reset
+      
+      // Highlight blocks (cyan)
+      lop block -> blocks
+        f line / block
+          set processed_line = processed_line + cyan + block + reset
+      
+      // Highlight operators (yellow)
+      lop operator -> operators
+        f line / operator
+          set processed_line = processed_line + yellow + operator + reset
+      
+      // Highlight strings (green)
+      f line / "\""
+        set processed_line = processed_line + green + line + reset
+      
+      // Highlight numbers (blue)
+      f line / "0" // line / "1" // line / "2" // line / "3" // line / "4" // line / "5" // line / "6" // line / "7" // line / "8" // line / "9"
+        set processed_line = processed_line + blue + line + reset
+      
+      // Highlight comments (gray)
+      f line / "//"
+        set processed_line = processed_line + gray + line + reset
+      
+      set highlighted_code = highlighted_code + processed_line + "\n"
+  aaq
+  
+  outgo syntax_result: object
+    original_code: source_code
+    highlighted_code: highlighted_code
+    keywords_count: keywords.length
+    blocks_count: blocks.length
+    operators_count: operators.length
+    status: "highlighted"
+  outgo
+  
+  tcq
+    source_code.length > 0
+    highlighted_code.length > 0
+    status === "highlighted"
+  tcq
+
+qq-

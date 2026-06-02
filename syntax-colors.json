@@ -1,0 +1,47 @@
+{
+  "version": "17.0.3",
+  "description": "QTMX Syntax Highlighting Colors",
+  "colors": {
+    "keyword": {
+      "color": "magenta",
+      "symbols": ["beQ-", "qq-", "qq+", "qq#", "f", "exel", "el", "lop", "set", "func", "call"]
+    },
+    "block": {
+      "color": "cyan",
+      "symbols": ["bbq", "aaq", "ingo", "outgo", "tcq"]
+    },
+    "operator": {
+      "color": "yellow",
+      "symbols": ["===", "=!", "<", ">", "<=>", "$", "//", "|"]
+    },
+    "string": {
+      "color": "green",
+      "pattern": "\".*?\""
+    },
+    "number": {
+      "color": "blue",
+      "pattern": "[0-9]+"
+    },
+    "comment": {
+      "color": "gray",
+      "pattern": "//.*"
+    },
+    "function": {
+      "color": "magenta",
+      "pattern": "func\\s+[a-zA-Z_][a-zA-Z0-9_]*"
+    },
+    "variable": {
+      "color": "green",
+      "pattern": "set\\s+[a-zA-Z_][a-zA-Z0-9_]*"
+    }
+  },
+  "ansi": {
+    "magenta": "\u001b[35m",
+    "cyan": "\u001b[36m",
+    "yellow": "\u001b[33m",
+    "green": "\u001b[32m",
+    "blue": "\u001b[34m",
+    "gray": "\u001b[90m",
+    "reset": "\u001b[0m"
+  }
+}
