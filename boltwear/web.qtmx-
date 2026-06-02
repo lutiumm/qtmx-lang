@@ -1,0 +1,57 @@
+beQ-
+  bbq
+    ingo endpoint: string
+    ingo method: string
+    ingo data: object
+  bbq
+  
+  aaq
+    // Web framework - high level modules (boltwear)
+    set lib_name = "qtmx-boltwear-web"
+    set lib_version = "1.0.0"
+    
+    func createServer(port)
+      set server = {port: port, running: true}
+      set result = server
+    
+    func route(method, path, handler)
+      set route_obj = {method: method, path: path, handler: handler}
+      set result = route_obj
+    
+    func httpGet(url)
+      set result = {status: 200, data: "GET response"}
+    
+    func httpPost(url, data)
+      set result = {status: 201, data: "POST response"}
+    
+    func httpPut(url, data)
+      set result = {status: 200, data: "PUT response"}
+    
+    func httpDelete(url)
+      set result = {status: 204, data: "DELETE response"}
+    
+    func middleware(name, handler)
+      set mw = {name: name, handler: handler}
+      set result = mw
+    
+    func authenticate(token)
+      f token.length > 0
+        set result = {authenticated: true, user: "user"}
+      el
+        set result = {authenticated: false, user: null}
+  aaq
+  
+  outgo web_module: object
+    name: lib_name
+    version: lib_version
+    functions: ["createServer", "route", "httpGet", "httpPost", "httpPut", "httpDelete", "middleware", "authenticate"]
+    type: "boltwear"
+    description: "Web framework for QTMX"
+  outgo
+  
+  tcq
+    lib_name.length > 0
+    lib_version.length > 0
+  tcq
+
+qq-

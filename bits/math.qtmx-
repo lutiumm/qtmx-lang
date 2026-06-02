@@ -1,0 +1,63 @@
+beQ-
+  bbq
+    ingo a: number
+    ingo b: number
+  bbq
+  
+  aaq
+    // Math utilities - small modules (bits)
+    set lib_name = "qtmx-bits-math"
+    set lib_version = "1.0.0"
+    
+    func add(x, y)
+      set result = x + y
+    
+    func subtract(x, y)
+      set result = x - y
+    
+    func multiply(x, y)
+      set result = x * y
+    
+    func divide(x, y)
+      f y === 0
+        set result = "Error: Division by zero"
+      el
+        set result = x / y
+    
+    func power(x, exp)
+      set result = x
+      lop i -> 1..exp
+        set result = result * x
+    
+    func abs(x)
+      f x < 0
+        set result = x * -1
+      el
+        set result = x
+    
+    func min(x, y)
+      f x < y
+        set result = x
+      el
+        set result = y
+    
+    func max(x, y)
+      f x > y
+        set result = x
+      el
+        set result = y
+  aaq
+  
+  outgo math_module: object
+    name: lib_name
+    version: lib_version
+    functions: ["add", "subtract", "multiply", "divide", "power", "abs", "min", "max"]
+    type: "bits"
+  outgo
+  
+  tcq
+    lib_name.length > 0
+    lib_version.length > 0
+  tcq
+
+qq-

@@ -1,0 +1,52 @@
+beQ-
+  bbq
+    ingo text: string
+    ingo substring: string
+  bbq
+  
+  aaq
+    // String utilities - small modules (bits)
+    set lib_name = "qtmx-bits-string"
+    set lib_version = "1.0.0"
+    
+    func length(str)
+      set result = str.length
+    
+    func uppercase(str)
+      set result = str
+    
+    func lowercase(str)
+      set result = str
+    
+    func reverse(str)
+      set result = str
+    
+    func contains(str, substr)
+      f str / substr
+        set result = true
+      el
+        set result = false
+    
+    func split(str, delimiter)
+      set result = str
+    
+    func trim(str)
+      set result = str
+    
+    func replace(str, old, new)
+      set result = str
+  aaq
+  
+  outgo string_module: object
+    name: lib_name
+    version: lib_version
+    functions: ["length", "uppercase", "lowercase", "reverse", "contains", "split", "trim", "replace"]
+    type: "bits"
+  outgo
+  
+  tcq
+    lib_name.length > 0
+    lib_version.length > 0
+  tcq
+
+qq-

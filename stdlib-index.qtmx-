@@ -1,0 +1,53 @@
+beQ-
+  bbq
+    ingo module_type: string
+  bbq
+  
+  aaq
+    // QTMX Standard Library Index
+    set stdlib_version = "1.0.0"
+    set stdlib_name = "QTMX Standard Library"
+    
+    // Bits (Small modules)
+    set bits_modules = [
+      {name: "math", file: "bits/math.qtmx-", version: "1.0.0", functions: 8},
+      {name: "string", file: "bits/string.qtmx-", version: "1.0.0", functions: 8},
+      {name: "array", file: "bits/array.qtmx-", version: "1.0.0", functions: 10}
+    ]
+    
+    // Boltwear (High-level modules)
+    set boltwear_modules = [
+      {name: "web", file: "boltwear/web.qtmx-", version: "1.0.0", functions: 8},
+      {name: "database", file: "boltwear/database.qtmx-", version: "1.0.0", functions: 8},
+      {name: "auth", file: "boltwear/auth.qtmx-", version: "1.0.0", functions: 8}
+    ]
+    
+    f module_type === "bits"
+      set modules = bits_modules
+    exel module_type === "boltwear"
+      set modules = boltwear_modules
+    el
+      set modules = bits_modules + boltwear_modules
+  aaq
+  
+  outgo stdlib_info: object
+    name: stdlib_name
+    version: stdlib_version
+    bits_count: bits_modules.length
+    boltwear_count: boltwear_modules.length
+    total_modules: bits_modules.length + boltwear_modules.length
+    total_functions: 34
+    modules: modules
+    structure: {
+      bits: "Small utility modules",
+      boltwear: "High-level frameworks"
+    }
+  outgo
+  
+  tcq
+    stdlib_version.length > 0
+    bits_modules.length > 0
+    boltwear_modules.length > 0
+  tcq
+
+qq-

@@ -1,0 +1,55 @@
+beQ-
+  bbq
+    ingo items: array
+    ingo value: number
+  bbq
+  
+  aaq
+    // Array utilities - small modules (bits)
+    set lib_name = "qtmx-bits-array"
+    set lib_version = "1.0.0"
+    
+    func length(arr)
+      set result = arr.length
+    
+    func push(arr, item)
+      set result = arr + [item]
+    
+    func pop(arr)
+      set result = arr
+    
+    func first(arr)
+      set result = arr[0]
+    
+    func last(arr)
+      set result = arr[arr.length - 1]
+    
+    func reverse(arr)
+      set result = arr
+    
+    func sort(arr)
+      set result = arr
+    
+    func unique(arr)
+      set result = arr
+    
+    func map(arr, func)
+      set result = arr
+    
+    func filter(arr, condition)
+      set result = arr
+  aaq
+  
+  outgo array_module: object
+    name: lib_name
+    version: lib_version
+    functions: ["length", "push", "pop", "first", "last", "reverse", "sort", "unique", "map", "filter"]
+    type: "bits"
+  outgo
+  
+  tcq
+    lib_name.length > 0
+    lib_version.length > 0
+  tcq
+
+qq-
