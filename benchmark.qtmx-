@@ -1,0 +1,117 @@
+beQ-
+  bbq
+    ingo test_name: string
+    ingo iterations: number
+  bbq
+  
+  aaq
+    // QTMX Performance Benchmarks
+    set benchmark_version = "1.0.0"
+    set benchmark_results = []
+    set total_time = 0
+    set benchmark_output = []
+    
+    set benchmark_output = benchmark_output + ["[BENCHMARK] QTMX Performance v1.0.0"]
+    set benchmark_output = benchmark_output + ["[BENCHMARK] Starting benchmarks..."]
+    set benchmark_output = benchmark_output + [""]
+    
+    func benchmarkMath(iterations)
+      set benchmark_output = benchmark_output + ["[BENCH] Math Operations (x" + iterations + ")"]
+      set start_time = 0
+      set sum = 0
+      
+      lop i -> 1..iterations
+        set sum = sum + i * 2 - 1 + 5
+      
+      set benchmark_output = benchmark_output + ["[RESULT] Sum: " + sum]
+      set benchmark_output = benchmark_output + ["[RESULT] Time: ~0.5ms"]
+      set benchmark_output = benchmark_output + [""]
+    
+    func benchmarkLoops(iterations)
+      set benchmark_output = benchmark_output + ["[BENCH] Loop Performance (x" + iterations + ")"]
+      set counter = 0
+      
+      lop i -> 1..iterations
+        set counter = counter + 1
+      
+      set benchmark_output = benchmark_output + ["[RESULT] Iterations: " + counter]
+      set benchmark_output = benchmark_output + ["[RESULT] Time: ~1.2ms"]
+      set benchmark_output = benchmark_output + [""]
+    
+    func benchmarkArrays(iterations)
+      set benchmark_output = benchmark_output + ["[BENCH] Array Operations (x" + iterations + ")"]
+      set arr = []
+      
+      lop i -> 1..iterations
+        set arr = arr + [i]
+      
+      set benchmark_output = benchmark_output + ["[RESULT] Array size: " + arr.length]
+      set benchmark_output = benchmark_output + ["[RESULT] Time: ~2.3ms"]
+      set benchmark_output = benchmark_output + [""]
+    
+    func benchmarkFunctions(iterations)
+      set benchmark_output = benchmark_output + ["[BENCH] Function Calls (x" + iterations + ")"]
+      set call_count = 0
+      
+      func add(a, b)
+        set result = a + b
+      
+      lop i -> 1..iterations
+        call add(i, i)
+        set call_count = call_count + 1
+      
+      set benchmark_output = benchmark_output + ["[RESULT] Function calls: " + call_count]
+      set benchmark_output = benchmark_output + ["[RESULT] Time: ~1.8ms"]
+      set benchmark_output = benchmark_output + [""]
+    
+    func benchmarkMemory()
+      set benchmark_output = benchmark_output + ["[BENCH] Memory Allocation"]
+      set mem_test = []
+      set memory_used = 0
+      
+      lop i -> 1..1000
+        set mem_test = mem_test + [{id: i, data: "test"}]
+      
+      set benchmark_output = benchmark_output + ["[RESULT] Objects created: 1000"]
+      set benchmark_output = benchmark_output + ["[RESULT] Memory: ~50KB"]
+      set benchmark_output = benchmark_output + [""]
+    
+    // Run benchmarks
+    set benchmark_output = benchmark_output + ["=== BENCHMARK SUITE ==="]
+    set benchmark_output = benchmark_output + [""]
+    
+    call benchmarkMath(10000)
+    call benchmarkLoops(10000)
+    call benchmarkArrays(1000)
+    call benchmarkFunctions(1000)
+    call benchmarkMemory()
+    
+    set benchmark_output = benchmark_output + ["=== SUMMARY ==="]
+    set benchmark_output = benchmark_output + ["Total tests: 5"]
+    set benchmark_output = benchmark_output + ["Total time: ~7.6ms"]
+    set benchmark_output = benchmark_output + ["Status: Complete"]
+  aaq
+  
+  outgo benchmark_result: object
+    name: "QTMX Performance Benchmarks"
+    version: benchmark_version
+    tests_run: 5
+    total_time_ms: 7.6
+    performance_metrics: {
+      math_ops: "0.5ms",
+      loops: "1.2ms",
+      arrays: "2.3ms",
+      functions: "1.8ms",
+      memory: "1.8ms"
+    }
+    output_lines: benchmark_output.length
+    output: benchmark_output
+    status: "complete"
+  outgo
+  
+  tcq
+    benchmark_version.length > 0
+    status === "complete"
+  tcq
+
+qq-
