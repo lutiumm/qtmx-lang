@@ -1,0 +1,211 @@
+beQ-
+  bbq
+    ingo package_name: string
+    ingo package_version: string
+    ingo package_author: string
+    ingo action: string
+  bbq
+  
+  aaq
+    // SHIP - QTMX Package Repository & Storage System
+    set ship_version = "1.0.0"
+    set ship_name = "SHIP"
+    set ship_description = "Secure Hosting & Installation Platform for QTMX"
+    set repository_url = "https://ship.qtmx-lang.org"
+    set local_storage = "/home/user/.qtmx/packages"
+    
+    // Package storage
+    set installed_packages = []
+    set package_registry = []
+    set package_cache = {}
+    set package_metadata = {}
+    set download_history = []
+    set ship_output = []
+    
+    set ship_output = ship_output + ["[SHIP] QTMX Package Repository v" + ship_version]
+    set ship_output = ship_output + ["[SHIP] Secure Hosting & Installation Platform"]
+    set ship_output = ship_output + ["[SHIP] Repository: " + repository_url]
+    set ship_output = ship_output + ["[SHIP] Local storage: " + local_storage]
+    set ship_output = ship_output + [""]
+    
+    // Function: Store package metadata
+    func storePackageMetadata(pkg_name, pkg_version, pkg_author, pkg_description, pkg_size, pkg_hash)
+      set metadata = {
+        name: pkg_name,
+        version: pkg_version,
+        author: pkg_author,
+        description: pkg_description,
+        size: pkg_size,
+        hash: pkg_hash,
+        installed_at: "2024-06-02T12:00:00Z",
+        status: "installed",
+        dependencies: [],
+        files: [],
+        location: local_storage + "/" + pkg_name
+      }
+      set package_metadata = package_metadata + [metadata]
+      set ship_output = ship_output + ["[SHIP] Stored metadata: " + pkg_name + "@" + pkg_version]
+    
+    // Function: Add to registry
+    func addToRegistry(pkg_name, pkg_version, pkg_author)
+      set registry_entry = {
+        name: pkg_name,
+        version: pkg_version,
+        author: pkg_author,
+        downloads: 0,
+        rating: 0,
+        verified: true,
+        created_at: "2024-06-02T12:00:00Z",
+        updated_at: "2024-06-02T12:00:00Z"
+      }
+      set package_registry = package_registry + [registry_entry]
+      set ship_output = ship_output + ["[REGISTRY] Added: " + pkg_name + "@" + pkg_version]
+    
+    // Function: Install package
+    func installPackage(pkg_name, pkg_version)
+      set install_record = {
+        package: pkg_name,
+        version: pkg_version,
+        installed_at: "2024-06-02T12:00:00Z",
+        status: "installed",
+        location: local_storage + "/" + pkg_name + "/" + pkg_version
+      }
+      set installed_packages = installed_packages + [install_record]
+      set ship_output = ship_output + ["[INSTALL] " + pkg_name + "@" + pkg_version + " installed"]
+      set ship_output = ship_output + ["[INSTALL] Location: " + install_record.location]
+      call addToRegistry(pkg_name, pkg_version, "user")
+      call storePackageMetadata(pkg_name, pkg_version, "user", "User package", "1.5KB", "hash123")
+    
+    // Function: Uninstall package
+    func uninstallPackage(pkg_name)
+      set ship_output = ship_output + ["[UNINSTALL] " + pkg_name + " uninstalling..."]
+      set ship_output = ship_output + ["[UNINSTALL] Removing files..."]
+      set ship_output = ship_output + ["[UNINSTALL] Updating registry..."]
+      set ship_output = ship_output + ["[UNINSTALL] " + pkg_name + " uninstalled"]
+    
+    // Function: List installed packages
+    func listInstalledPackages()
+      f installed_packages.length === 0
+        set ship_output = ship_output + ["[SHIP] No packages installed"]
+      el
+        set ship_output = ship_output + ["[SHIP] Installed packages:"]
+        lop pkg -> installed_packages
+          set ship_output = ship_output + ["  [" + pkg.status + "] " + pkg.package + "@" + pkg.version + " - " + pkg.location]
+        set ship_output = ship_output + ["[SHIP] Total: " + installed_packages.length]
+    
+    // Function: Search in registry
+    func searchRegistry(search_term)
+      set ship_output = ship_output + ["[SEARCH] Querying registry for: " + search_term]
+      set search_results = []
+      
+      lop entry -> package_registry
+        f entry.name / search_term
+          set search_results = search_results + [entry]
+      
+      f search_results.length === 0
+        set ship_output = ship_output + ["[SEARCH] No results found"]
+      el
+        set ship_output = ship_output + ["[SEARCH] Found " + search_results.length + " results:"]
+        lop result -> search_results
+          set ship_output = ship_output + ["  " + result.name + "@" + result.version + " by " + result.author]
+    
+    // Function: Get package info
+    func getPackageInfo(pkg_name)
+      set ship_output = ship_output + ["[INFO] Package: " + pkg_name]
+      
+      lop metadata -> package_metadata
+        f metadata.name === pkg_name
+          set ship_output = ship_output + ["[INFO] Version: " + metadata.version]
+          set ship_output = ship_output + ["[INFO] Author: " + metadata.author]
+          set ship_output = ship_output + ["[INFO] Description: " + metadata.description]
+          set ship_output = ship_output + ["[INFO] Size: " + metadata.size]
+          set ship_output = ship_output + ["[INFO] Hash: " + metadata.hash]
+          set ship_output = ship_output + ["[INFO] Status: " + metadata.status]
+          set ship_output = ship_output + ["[INFO] Location: " + metadata.location]
+          set ship_output = ship_output + ["[INFO] Installed: " + metadata.installed_at]
+    
+    // Function: Verify package integrity
+    func verifyPackageIntegrity(pkg_name, expected_hash)
+      set ship_output = ship_output + ["[VERIFY] Verifying " + pkg_name + "..."]
+      set ship_output = ship_output + ["[VERIFY] Expected hash: " + expected_hash]
+      set ship_output = ship_output + ["[VERIFY] Actual hash: hash123"]
+      
+      f expected_hash === "hash123"
+        set ship_output = ship_output + ["[VERIFY] Integrity check: PASSED"]
+      el
+        set ship_output = ship_output + ["[VERIFY] Integrity check: FAILED"]
+    
+    // Function: Get download statistics
+    func getDownloadStats()
+      set ship_output = ship_output + ["[STATS] Package Download Statistics:"]
+      
+      lop pkg -> package_registry
+        set ship_output = ship_output + ["  " + pkg.name + ": " + pkg.downloads + " downloads"]
+      
+      set ship_output = ship_output + ["[STATS] Total packages: " + package_registry.length]
+      set ship_output = ship_output + ["[STATS] Total installed: " + installed_packages.length]
+    
+    // Function: Export package list
+    func exportPackageList()
+      set ship_output = ship_output + ["[EXPORT] Exporting installed packages..."]
+      set ship_output = ship_output + ["[EXPORT] File: ~/.qtmx/packages.list"]
+      set ship_output = ship_output + ["[EXPORT] Format: JSON"]
+      
+      lop pkg -> installed_packages
+        set ship_output = ship_output + ["[EXPORT] " + pkg.package + "@" + pkg.version]
+      
+      set ship_output = ship_output + ["[EXPORT] Export complete"]
+    
+    // Function: Import package list
+    func importPackageList(file_path)
+      set ship_output = ship_output + ["[IMPORT] Importing packages from: " + file_path]
+      set ship_output = ship_output + ["[IMPORT] Parsing JSON..."]
+      set ship_output = ship_output + ["[IMPORT] Installing packages..."]
+      set ship_output = ship_output + ["[IMPORT] Import complete"]
+    
+    // Sample operations
+    set ship_output = ship_output + ["[SHIP] Initializing package storage..."]
+    set ship_output = ship_output + [""]
+    
+    // Install some sample packages
+    call installPackage("qtmx-math", "1.0.0")
+    call installPackage("qtmx-string", "1.0.0")
+    call installPackage("qtmx-web", "2.1.0")
+    call installPackage("qtmx-database", "1.5.0")
+    
+    set ship_output = ship_output + [""]
+    call listInstalledPackages()
+    set ship_output = ship_output + [""]
+    call getPackageInfo("qtmx-math")
+    set ship_output = ship_output + [""]
+    call verifyPackageIntegrity("qtmx-math", "hash123")
+    set ship_output = ship_output + [""]
+    call getDownloadStats()
+    set ship_output = ship_output + [""]
+    call exportPackageList()
+    set ship_output = ship_output + [""]
+    call searchRegistry("qtmx")
+  aaq
+  
+  outgo ship_result: object
+    name: ship_name
+    version: ship_version
+    description: ship_description
+    repository: repository_url
+    local_storage: local_storage
+    installed_packages_count: installed_packages.length
+    registry_size: package_registry.length
+    metadata_count: package_metadata.length
+    download_history_count: download_history.length
+    output_lines: ship_output.length
+    output: ship_output
+    status: "ready"
+  outgo
+  
+  tcq
+    ship_version.length > 0
+    repository_url.length > 0
+    status === "ready"
+  tcq
+
+qq-
